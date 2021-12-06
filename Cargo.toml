@@ -1,0 +1,9 @@
+[package]
+name = "adventofcode2021rust"
+version = "0.1.0"
+edition = "2018"
+authors = ["Daniel Low <daniellowtw@gmail.com>"]
+
+[dependencies]
+strum = "0.23"
+strum_macros = "0.23"
