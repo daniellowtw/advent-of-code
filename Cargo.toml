@@ -7,3 +7,4 @@ authors = ["Daniel Low <daniellowtw@gmail.com>"]
 [dependencies]
 strum = "0.23"
 strum_macros = "0.23"
+itertools = "0.9.0"
