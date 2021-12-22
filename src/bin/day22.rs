@@ -24,6 +24,13 @@ impl Range {
     // The strategy for this problem involves breaking the range into critical segments and then
     // asking what type is it. We are only concerned with whether it's in the original range,
     // and whether it overlaps.
+
+    fn intersect2(&self, other: &Range) -> Option<Range> {
+        if self.disjoint(other) { None } else {
+            Some(Range(self.0.max(other.0), self.1.min(other.1)))
+        }
+    }
+
     fn intersect(&self, other: &Range) -> Vec<RangeType> {
         // 6 cases to consider
         // Disjoint cases
@@ -61,8 +68,41 @@ impl Cubiod {
         (self.0.1 - self.0.0 + 1) * (self.1.1 - self.1.0 + 1) * (self.2.1 - self.2.0 + 1)
     }
 
-    fn disjoint(&self, other:&Cubiod) -> bool {
+    fn disjoint(&self, other: &Cubiod) -> bool {
         self.0.disjoint(&other.0) || self.1.disjoint(&other.1) || self.2.disjoint(&other.2)
+    }
+    // After reading reddit, I realized this can be broken into at most 6 cuboids.
+    // Interestingly this did not help improvement. It actually made it worst for the first algo!
+    fn subtract2(&self, other: &Cubiod) -> Vec<Cubiod> {
+        if self.disjoint(other) {
+            return vec![self.clone()];
+        }
+        let mut res = Vec::new();
+        // First do the x axis.
+        let Range(x0, x1) = self.0.intersect2(&other.0).unwrap();
+        if x0 > self.0.0 {
+            res.push(Cubiod(Range(self.0.0, x0 - 1), self.1.clone(), self.2.clone(), true));
+        }
+        if x1 < self.0.1 {
+            res.push(Cubiod(Range(x1 + 1, self.0.1), self.1.clone(), self.2.clone(), true))
+        }
+        // THEN do the y axis.
+        let Range(y0, y1) = self.1.intersect2(&other.1).unwrap();
+        if y0 > self.1.0 {
+            res.push(Cubiod(Range(x0, x1), Range(self.1.0, y0 - 1), self.2.clone(), true));
+        }
+        if y1 < self.1.1 {
+            res.push(Cubiod(Range(x0, x1), Range(y1 + 1, self.1.1), self.2.clone(), true));
+        }
+        // Finally do z.
+        let Range(z0, z1) = self.1.intersect2(&other.1).unwrap();
+        if z0 > self.2.0 {
+            res.push(Cubiod(Range(x0, x1), Range(y0, y1), Range(self.2.0, z0 - 1), true));
+        }
+        if z1 < self.2.1 {
+            res.push(Cubiod(Range(x0, x1), Range(y0, y1), Range(z1 + 1, self.2.1), true));
+        }
+        res
     }
 
     // Subtrack is self - other. E.g. if a 3x3x3 cube - 1x1x1 cube in the core, then we
@@ -147,7 +187,7 @@ fn reverse_and_count_smarter(entries: Vec<Cubiod>) -> i64 {
             for existing in &blackhole {
                 let mut new_remainder: Vec<Cubiod> = vec![];
                 for r in remainder {
-                    for new_el in r.subtract(&existing) {
+                    for new_el in r.subtract2(&existing) {
                         new_remainder.push(new_el);
                     }
                 }
@@ -162,10 +202,10 @@ fn reverse_and_count_smarter(entries: Vec<Cubiod>) -> i64 {
 
 fn simluate_and_count(entries: &Vec<Cubiod>) -> i64 {
     let mut remainder: Vec<Cubiod> = vec![];
-    for  c in entries.into_iter() {
+    for c in entries.into_iter() {
         let mut new_remainder: Vec<Cubiod> = vec![];
         for existing in &remainder {
-            for r in existing.subtract(&c) {
+            for r in existing.subtract2(&c) {
                 new_remainder.push(r);
             }
         }
@@ -244,7 +284,7 @@ mod tests {
         let c = Cubiod(range(), range(), range(), true);
         let range2 = || Range(0, 1); //2x2x2
         let c2 = Cubiod(range2(), range2(), range2(), true);
-        let vec = &c.subtract(&c2);
+        let vec = &c.subtract2(&c2);
         let area = vec.iter().fold(0, |b, x| { b + x.area() });
         assert_eq!(area, 19);
     }
@@ -255,7 +295,7 @@ mod tests {
         let c = Cubiod(range(), range(), range(), true);
         let range2 = || Range(0, 3); //2x2x2
         let c2 = Cubiod(range2(), range2(), range2(), true);
-        let vec = c.subtract(&c2);
+        let vec = c.subtract2(&c2);
         let area = vec.iter().fold(0, |b, x| { b + x.area() });
         assert_eq!(area, 19);
     }
@@ -266,7 +306,7 @@ mod tests {
         let c = Cubiod(range(), range(), range(), true);
         let range2 = || Range(0, 0); //2x2x2
         let c2 = Cubiod(range2(), range2(), range2(), true);
-        let remaining = c.subtract(&c2);
+        let remaining = c.subtract2(&c2);
         let area = remaining.iter().fold(0, |b, x| { b + x.area() });
         assert_eq!(area, 26);
     }
@@ -277,7 +317,7 @@ mod tests {
         let c = Cubiod(range(), range(), range(), true);
         let range2 = || Range(0, 0); //2x2x2
         let c2 = Cubiod(range2(), range2(), range2(), true);
-        let remaining = c2.subtract(&c);
+        let remaining = c2.subtract2(&c);
         assert_eq!(remaining.len(), 0);
         let area = remaining.iter().fold(0, |b, x| { b + x.area() });
         assert_eq!(area, 0);
@@ -288,7 +328,7 @@ mod tests {
         let range = || Range(-1, 1); // 3x3x3
         let c = Cubiod(range(), range(), range(), true);
         let c2 = Cubiod(range(), range(), range(), true);
-        let remaining = c2.subtract(&c);
+        let remaining = c2.subtract2(&c);
         assert_eq!(remaining.len(), 0);
         let area = remaining.iter().fold(0, |b, x| { b + x.area() });
         assert_eq!(area, 0);
@@ -298,7 +338,7 @@ mod tests {
     fn overlap_2_axes() {
         let c = Cubiod(Range(0, 2), Range(0, 2), Range(0, 4), true);
         let c2 = Cubiod(Range(0, 2), Range(0, 2), Range(0, 2), true); // 3x3x3
-        let remaining = c.subtract(&c2);
+        let remaining = c.subtract2(&c2);
         let area = remaining.iter().fold(0, |b, x| { b + x.area() });
         assert_eq!(area, 18); //3x3x2
     }
