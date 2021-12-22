@@ -24,27 +24,32 @@ impl Range {
     // The strategy for this problem involves breaking the range into critical segments and then
     // asking what type is it. We are only concerned with whether it's in the original range,
     // and whether it overlaps.
-    fn intersect(&self, other: &Range) -> (Vec<RangeType>, bool) {
+    fn intersect(&self, other: &Range) -> Vec<RangeType> {
         // 6 cases to consider
         // Disjoint cases
         if self.1 < other.0 || self.0 > other.1 {
-            (vec![Included(self.0, self.1)], true)
+            vec![Included(self.0, self.1)]
         } else if other.0 <= self.0 && other.1 >= self.1 {
             // Nothing case
-            (vec![Overlapped(self.0, self.1)], false)
+            vec![Overlapped(self.0, self.1)]
         } else if other.0 > self.0 && other.1 < self.1 {
             // Split into 2 case
-            (vec![Included(self.0, other.0 - 1), Overlapped(other.0, other.1), Included(other.1 + 1, self.1)], false)
+            vec![Included(self.0, other.0 - 1), Overlapped(other.0, other.1), Included(other.1 + 1, self.1)]
         } else if other.1 < self.1 {
             // Excluded, Overlapped, included
-            (vec![Overlapped(self.0, other.1), Included(other.1 + 1, self.1)], false)
+            vec![Overlapped(self.0, other.1), Included(other.1 + 1, self.1)]
         } else if other.0 > self.0 {
             // Included, Overlapped, Excluded
             // Right split
-            (vec![Included(self.0, other.0 - 1), Overlapped(other.0, self.1)], false)
+            vec![Included(self.0, other.0 - 1), Overlapped(other.0, self.1)]
         } else {
             todo!()
         }
+    }
+    fn disjoint(&self, other: &Range) -> bool {
+        // I think it's easier to reason about the negation than to think about intersection
+        // Disjoint critia is simply when one's start/end is compared to the other's end/start.
+        self.1 < other.0 || self.0 > other.1
     }
 }
 
@@ -56,28 +61,23 @@ impl Cubiod {
         (self.0.1 - self.0.0 + 1) * (self.1.1 - self.1.0 + 1) * (self.2.1 - self.2.0 + 1)
     }
 
+    fn disjoint(&self, other:&Cubiod) -> bool {
+        self.0.disjoint(&other.0) || self.1.disjoint(&other.1) || self.2.disjoint(&other.2)
+    }
+
     // Subtrack is self - other. E.g. if a 3x3x3 cube - 1x1x1 cube in the core, then we
     // should have a vector of cuboids representing the shell.
     // This algo is dumb - I repeat, dumb - and can return up to 27 elements!
     fn subtract(&self, other: &Cubiod) -> Vec<Cubiod> {
         // A crux to solving this problem without running forever is to exit early when it's
         // disjointed! Any axes that are disjoint can be short circuited.
+        if self.disjoint(other) {
+            return vec![self.clone()];
+        }
         let mut res = Vec::new();
-        let (xs, short) = &self.0.intersect(&other.0);
-        if *short {
-            return vec![self.clone()];
-        }
-        let (ys, short) = &self.1.intersect(&other.1);
-        if *short {
-            return vec![self.clone()];
-        }
-        let (zs, short) = &self.2.intersect(&other.2);
-        if *short {
-            return vec![self.clone()];
-        }
-        for x in xs {
-            for y in ys {
-                for z in zs {
+        for x in &self.0.intersect(&other.0) {
+            for y in &self.1.intersect(&other.1) {
+                for z in &self.2.intersect(&other.2) {
                     match (x, y, z) {
                         (&Included(x1, x2), &Included(y1, y2), &Included(z1, z2)) =>
                             res.push(Cubiod(Range(x1, x2), Range(y1, y2), Range(z1, z2), true)),
