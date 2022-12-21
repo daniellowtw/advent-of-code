@@ -13,26 +13,28 @@ type State2 = (i32, i32, i32, i32, i32, i32, i32, i32, i32);
 
 fn potential2(state: &State2, blueprint: &Blueprint) -> i32 {
     let (ore, ore_bot, clay, clay_bot, obsidian, obsidian_bot, geode, geode_bot, time) = *state;
-    let mut max_ore = ore;
-    for i in ore_bot..(ore_bot + time) {
-        max_ore += i;
-    }
+    // PS: Some attempt to bring down the max potential to prune the search tree even more, but the following doesn't
+    // quite work as it actually increases the potential
+    // let mut max_ore = ore;
+    // for i in ore_bot..(ore_bot + time) {
+    //     max_ore += i;
+    // }
 
-    let interval = max_ore / blueprint.clay as i32;
-    let mut max_clay = clay;
-    for i in clay_bot..(clay_bot + interval - 1) {
-        max_clay += i;
-    }
+    // let interval = max_ore / blueprint.clay as i32;
+    // let mut max_clay = clay;
+    // for i in clay_bot..(clay_bot + interval - 1) {
+    //     max_clay += i;
+    // }
 
-    let mut max_obsidian = obsidian;
-    let interval = max_clay / blueprint.obsidian.1 as i32;
-    for i in obsidian_bot..(clay_bot + interval - 1) {
-        max_obsidian += i;
-    }
+    // let mut max_obsidian = obsidian;
+    // let interval = max_clay / blueprint.obsidian.1 as i32;
+    // for i in obsidian_bot..(clay_bot + interval - 1) {
+    //     max_obsidian += i;
+    // }
 
+    // let interval = max_obsidian / blueprint.geode.1 as i32;
     let mut max = geode;
-    let interval = max_obsidian / blueprint.geode.1 as i32;
-    for i in geode_bot..(geode_bot + interval - 1) {
+    for i in geode_bot..(geode_bot + time - 1) {
         max += i;
     }
     max
@@ -66,8 +68,8 @@ fn maximize(blueprint: &Blueprint, time: i32) -> i32 {
                 dbg!(s, score_max);
             }
         } else {
+            // PS: I think potential2 can be more aggressive here to prune the search tree.
             let max = potential2(&s, blueprint);
-            dbg!(max, score_max);
             if max < score_max {
                 continue;
             }
