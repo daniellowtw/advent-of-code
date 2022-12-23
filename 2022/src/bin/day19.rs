@@ -11,6 +11,7 @@ use std::{
 
 type State2 = (i32, i32, i32, i32, i32, i32, i32, i32, i32);
 
+#[allow(unused)]
 fn potential2(state: &State2, blueprint: &Blueprint) -> i32 {
     let (ore, ore_bot, clay, clay_bot, obsidian, obsidian_bot, geode, geode_bot, time) = *state;
     // PS: Some attempt to bring down the max potential to prune the search tree even more, but the following doesn't
@@ -221,6 +222,7 @@ struct State {
     time: i32,
 }
 
+#[allow(dead_code)]
 impl State {
     fn new(time: i32) -> Self {
         Self {
@@ -253,6 +255,8 @@ impl State {
         self.geode += other.geode_bot;
     }
 }
+
+#[allow(dead_code)]
 fn possible_next_states(state: &State, blueprint: &Blueprint) -> Vec<State> {
     let mut res = vec![];
     let (curr_min, _) = state.potential();

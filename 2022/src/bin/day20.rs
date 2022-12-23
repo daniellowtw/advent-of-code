@@ -1,5 +1,5 @@
 use std::collections::{HashMap, HashSet};
-use std::{fs};
+use std::fs;
 
 #[derive(Debug, Clone)]
 struct Node {
@@ -133,6 +133,7 @@ fn solve2(lookup: &mut HashMap<i32, Node>) -> i64 {
     res.into_iter().sum()
 }
 
+#[allow(dead_code)]
 fn valid(lookup: &HashMap<i32, Node>, start_idx: i32) -> bool {
     let size = lookup.len();
     let mut seen = HashSet::new();
@@ -156,6 +157,7 @@ fn valid(lookup: &HashMap<i32, Node>, start_idx: i32) -> bool {
     return true;
 }
 
+#[allow(dead_code)]
 fn trace(lookup: &HashMap<i32, Node>) -> () {
     let mut start_idx = 0;
     let mut path = vec![0];

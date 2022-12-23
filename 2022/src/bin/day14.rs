@@ -137,6 +137,7 @@ fn simulate(map: &mut Vec<Vec<char>>, start: (usize, usize)) -> i32 {
     return count;
 }
 
+#[allow(dead_code)]
 fn print_map(map: &Vec<Vec<char>>) {
     for i in 0..map[0].len() {
         println!("{}", map.iter().map(|x| x[i]).collect::<String>());
