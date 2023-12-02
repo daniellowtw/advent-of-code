@@ -37,12 +37,12 @@ fn find_num_at_pos_i(s: &str, i: usize) -> Option<u32> {
 }
 
 fn part2(s: &str) -> i32 {
-    // Originally started with just iterating through the hashmap 
+    // Originally started with just iterating through the hashmap
     // and replacing the string with the number. But this ran into issues
     // such as "eightwo1" which should return 81 but will become 21.
     // Then I tried to do replacement one the first occurrence, but that will
     // affect values like "eightwo". This should return 82, but will become 88.
-    // Hence, replacement is the wrong idea. So instead, just search and return 
+    // Hence, replacement is the wrong idea. So instead, just search and return
     // the first and last without replacement.
     let mut first: u32 = 0;
     let mut last: u32 = 0;
