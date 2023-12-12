@@ -1,4 +1,4 @@
-use std::{fs, vec};
+use std::{collections::HashMap, fs, vec};
 
 #[derive(Debug)]
 struct PuzzleInput {
@@ -186,7 +186,7 @@ fn handle_hash_case(i: usize, j: usize, a: &Vec<char>, b: &Vec<usize>, dp: &Vec<
             return dp[i - space_needed][j - 1];
         }
     }
-    return 0
+    return 0;
 }
 
 fn _debug_dp(a: &Vec<char>, b: &Vec<usize>, dp: &Vec<Vec<i64>>) {
@@ -216,10 +216,92 @@ fn main() {
         .reports2
         .iter()
         .map(|(a, b)| {
-            let count = part2(&a, &b);
+            let count = part2_retro(&a, &b, &mut HashMap::new());
             // println!("{:?}, {:?} -> {}", a, b, count);
             return count;
         })
         .sum();
     println!("{}", ans);
+}
+
+fn part2_retro(
+    a: &Vec<char>,
+    b: &Vec<usize>,
+    cache: &mut HashMap<(Vec<char>, Vec<usize>), i64>,
+) -> i64 {
+    // I decided to redo with the original idea of "DFS" + memoization.
+    // It really isn't a DFS on hind sight, just a tree structure.
+    let key = (a.clone(), b.clone());
+    if cache.contains_key(&key) {
+        return *cache.get(&key).unwrap();
+    }
+
+    if b.len() == 0 {
+        if a.iter().any(|x| *x == '#') {
+            cache.insert(key, 0);
+            return 0;
+        } else {
+            // Remaining ? must all be .
+            cache.insert(key, 1);
+            return 1;
+        }
+    }
+    if a.len() == 0 {
+        cache.insert(key, 0);
+        return 0;
+    }
+
+    let mut ans = 0;
+    match a[0] {
+        '.' => {
+            ans = part2_retro(&a[1..].to_vec(), b, cache);
+        }
+        '#' => {
+            // Must start a block now
+            if a.len() == b[0] {
+                if a[0..b[0]].iter().all(|x| *x != '.') {
+                    ans = part2_retro(&a[b[0]..].to_vec(), &b[1..].to_vec(), cache);
+                }
+            } else if a.len() > b[0] {
+                if a[0..b[0]].iter().all(|x| *x != '.') && a[b[0]] != '#' {
+                    ans = part2_retro(&a[b[0] + 1..].to_vec(), &b[1..].to_vec(), cache);
+                }
+            }
+        }
+        '?' => {
+            // Act like a .
+            ans += part2_retro(&a[1..].to_vec(), b, cache);
+            // Act like a #
+            if a.len() == b[0] {
+                if a[0..b[0]].iter().all(|x| *x != '.') {
+                    ans += part2_retro(&a[b[0]..].to_vec(), &b[1..].to_vec(), cache);
+                }
+            } else if a.len() > b[0] {
+                if a[0..b[0]].iter().all(|x| *x != '.') && a[b[0]] != '#' {
+                    ans += part2_retro(&a[b[0] + 1..].to_vec(), &b[1..].to_vec(), cache);
+                }
+            }
+        }
+        _ => panic!(),
+    }
+
+    cache.insert(key, ans);
+    return ans;
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_solve2() {
+        let input_str = "\
+???.### 1,1,3
+";
+        let input = parse(input_str.to_string());
+        let (a, b) = &input.reports2[0];
+        println!("{:?}, {:?}", a, b);
+        let answer = part2_retro(&a, &b, &mut HashMap::new());
+        assert!(answer == 1);
+    }
 }
