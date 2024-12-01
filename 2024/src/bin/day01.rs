@@ -28,7 +28,7 @@ fn part2(a: Vec<i32>, b: Vec<i32>) -> i32 {
 }
 
 fn main() {
-    let s: String = fs::read_to_string("./src/input1.txt").unwrap();
+    let s: String = fs::read_to_string("./input/01.txt").unwrap();
     let ss: Vec<Vec<i32>> = s.split("\n")
     .filter(|x| !x.is_empty())
     .map(|x| x.split_whitespace().map(|y| y.parse::<i32>().unwrap()).collect()).collect();
