@@ -31,73 +31,47 @@ fn parse(s: &str) -> PuzzleInput {
 
 fn part1(ss: &PuzzleInput) -> i32 {
     // Idea: pick a direction and walk 4 times.
-    let mut count = 0;
-    let offsets = vec![
-        (0, 1),
-        (0, -1),
-        (1, 0),
-        (-1, 0),
-        (1, 1),
-        (1, -1),
-        (-1, 1),
-        (-1, -1),
-    ];
-    for i in 0..ss.height {
-        for j in 0..ss.width {
-            if ss.grid[i][j] == 'X' {
-                for (i2, j2) in offsets.iter() {
-                    if ss.is_valid(i as i32 + i2, j as i32 + j2) {
-                        if ss.grid[(i as i32 + i2) as usize][(j as i32 + j2) as usize] == 'M' {
-                            if ss.is_valid(i as i32 + i2 + i2, j as i32 + j2 + j2) {
-                                if ss.grid[(i as i32 + i2 + i2) as usize]
-                                    [(j as i32 + j2 + j2) as usize]
-                                    == 'A'
-                                {
-                                    if ss.is_valid(i as i32 + i2 + i2 + i2, j as i32 + j2 + j2 + j2)
-                                    {
-                                        if ss.grid[(i as i32 + i2 + i2 + i2) as usize]
-                                            [(j as i32 + j2 + j2 + j2) as usize]
-                                            == 'S'
-                                        {
-                                            count += 1;
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-    return count;
+    let offsets: Vec<(i32, i32)> = (-1..=1)
+        .flat_map(|i| (-1..=1).map(move |j| (i, j)))
+        .filter(|x| *x != (0, 0))
+        .collect();
+    let target: Vec<char> = "XMAS".chars().collect();
+    let count = (0..ss.height)
+        .flat_map(|i| (0..ss.width).map(move |j| (i, j)))
+        .flat_map(|(i, j)| offsets.iter().map(move |offset| (i, j, offset)))
+        .filter(|&(i, j, offset)| {
+            target
+                .iter()
+                .enumerate()
+                .map(|(idx, d)| {
+                    let (dx, dy) = offset;
+                    ((i as i32 + idx as i32 * dx, j as i32 + idx as i32 * dy), d)
+                })
+                .all(|(pos, c)| {
+                    ss.is_valid(pos.0, pos.1) && ss.grid[pos.0 as usize][pos.1 as usize] == *c
+                })
+        })
+        .count();
+    return count as i32;
 }
 
 fn part2(ss: &PuzzleInput) -> i32 {
     // Basically just iterate through and check for the 4 possible permutations.
-    let mut count = 0;
-    for i in 1..ss.height - 1 {
-        for j in 1..ss.width - 1 {
-            if ss.grid[i][j] != 'A' {
-                continue;
-            } else {
-                if ss.grid[i - 1][j - 1] == 'M' && ss.grid[i + 1][j + 1] == 'S' {
-                    if ss.grid[i - 1][j + 1] == 'M' && ss.grid[i + 1][j - 1] == 'S'
-                        || ss.grid[i + 1][j - 1] == 'M' && ss.grid[i - 1][j + 1] == 'S'
-                    {
-                        count += 1;
-                    }
-                } else if ss.grid[i - 1][j - 1] == 'S' && ss.grid[i + 1][j + 1] == 'M' {
-                    if ss.grid[i - 1][j + 1] == 'M' && ss.grid[i + 1][j - 1] == 'S'
-                        || ss.grid[i + 1][j - 1] == 'M' && ss.grid[i - 1][j + 1] == 'S'
-                    {
-                        count += 1;
-                    }
-                }
-            }
-        }
-    }
-    return count;
+    let count = (1..ss.height - 1)
+        .flat_map(|i| (1..ss.width - 1).map(move |j| (i, j)))
+        .filter(|&(i, j)| ss.grid[i][j] == 'A')
+        .filter(|&(i, j)| {
+            let cond1 = ss.grid[i - 1][j - 1] == 'M' && ss.grid[i + 1][j + 1] == 'S';
+            let cond2 = ss.grid[i - 1][j - 1] == 'S' && ss.grid[i + 1][j + 1] == 'M';
+            cond1 || cond2
+        })
+        .filter(|&(i, j)| {
+            let cond1 = ss.grid[i - 1][j + 1] == 'M' && ss.grid[i + 1][j - 1] == 'S';
+            let cond2 = ss.grid[i - 1][j + 1] == 'S' && ss.grid[i + 1][j - 1] == 'M';
+            cond1 || cond2
+        })
+        .count();
+    return count as i32;
 }
 
 fn main() {
