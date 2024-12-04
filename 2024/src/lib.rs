@@ -54,8 +54,14 @@ fn get_client() -> Result<(Client, HeaderMap), Box<dyn Error>> {
     let config = load_or_create_config()?;
     let client = Client::new();
     let mut headers = HeaderMap::new();
-    headers.insert(USER_AGENT, HeaderValue::from_static("advent-of-code-fetcher"));
-    headers.insert("Cookie", HeaderValue::from_str(&format!("session={}", config.session_cookie))?);
+    headers.insert(
+        USER_AGENT,
+        HeaderValue::from_static("advent-of-code-fetcher"),
+    );
+    headers.insert(
+        "Cookie",
+        HeaderValue::from_str(&format!("session={}", config.session_cookie))?,
+    );
     Ok((client, headers))
 }
 

@@ -3,8 +3,7 @@ use std::fs::{self, File};
 use std::io::{self, Write};
 use std::path::Path;
 
-use aoc2024::{get_example, get_puzzle_input}; 
-
+use aoc2024::{get_example, get_puzzle_input};
 
 fn main() -> io::Result<()> {
     let args: Vec<String> = env::args().collect();
@@ -26,11 +25,10 @@ fn main() -> io::Result<()> {
             let example_file_path = input_dir.join(format!("example-{:02}.txt", day));
             fs::write(&example_file_path, example)?;
             println!("Example file saved at {}", example_file_path.display());
-
         }
         Err(e) => eprintln!("Failed to fetch example: {}", e),
     }
-    
+
     // Create the Rust file for the given day
     let file_name = format!("day{:02}.rs", day);
     let file_path = bin_dir.join(&file_name);

@@ -1,4 +1,3 @@
-
 use std::fs;
 
 fn is_safe(s: &Vec<i32>) -> bool {
@@ -8,7 +7,7 @@ fn is_safe(s: &Vec<i32>) -> bool {
     let is_increasing = !s.windows(2).any(|x| x[1] - x[0] < 0);
 
     for x in s.iter().skip(1) {
-        if is_increasing && (x - current <1 || x - current > 3) {
+        if is_increasing && (x - current < 1 || x - current > 3) {
             return false;
         }
         if !is_increasing && (current - x < 1 || current - x > 3) {
@@ -34,19 +33,25 @@ fn is_safe_with_removal(s: &Vec<i32>) -> bool {
 }
 
 fn part1(ss: &Vec<Vec<i32>>) -> i32 {
-    return ss.iter().filter(|x| is_safe(x)).count() as i32
+    return ss.iter().filter(|x| is_safe(x)).count() as i32;
 }
 
 fn part2(ss: &Vec<Vec<i32>>) -> i32 {
-    return ss.iter().filter(|x| is_safe_with_removal(x)).count() as i32
+    return ss.iter().filter(|x| is_safe_with_removal(x)).count() as i32;
 }
 
 fn main() {
     let s: String = fs::read_to_string("./input/02.txt").unwrap();
     // let s: String = fs::read_to_string("./input/example-02.txt").unwrap();
-    let ss: Vec<Vec<i32>> = s.split("\n")
-    .filter(|x| !x.is_empty())
-    .map(|x| x.split_whitespace().map(|y| y.parse::<i32>().unwrap()).collect()).collect();
+    let ss: Vec<Vec<i32>> = s
+        .split("\n")
+        .filter(|x| !x.is_empty())
+        .map(|x| {
+            x.split_whitespace()
+                .map(|y| y.parse::<i32>().unwrap())
+                .collect()
+        })
+        .collect();
     println!("{}", part1(&ss));
     println!("{}", part2(&ss));
 }
