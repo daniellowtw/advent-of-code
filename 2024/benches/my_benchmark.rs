@@ -1,7 +1,10 @@
+use std::fs;
+
+use criterion::{black_box, criterion_group, criterion_main, BenchmarkId, Criterion};
+
 use std::{
     cmp::Ordering,
     collections::{HashMap, HashSet},
-    fs,
 };
 
 struct PuzzleInput {
@@ -107,10 +110,48 @@ fn part2_alternative(pi: &PuzzleInput) -> i32 {
     });
 }
 
-fn main() {
-    let s: String = fs::read_to_string("./input/05.txt").unwrap();
-    // let s: String = fs::read_to_string("./input/example-05.txt").unwrap();
-    let pi = parse(&s);
-    println!("{}", part1(&pi));
-    println!("{}", part2_alternative(&pi));
+fn part2_old(pi: &PuzzleInput) -> i32 {
+    let mut count = 0;
+    for r2 in pi.rows.iter() {
+        let mut current_order: Vec<i32> = vec![];
+        let mut r = r2.clone();
+        while !r.is_empty() {
+            let i = r.pop().unwrap();
+            if let Some(rule) = pi.rules_by_id.get(&i) {
+                for x in rule {
+                    if current_order.contains(&x) {
+                        current_order.retain(|y| *y != *x);
+                        r.push(*x);
+                    }
+                }
+            }
+            current_order.push(i)
+        }
+        if current_order != r2.clone() {
+            // println!("{:?} -> {:?}", &r2, &current_order);
+            count += current_order.get(current_order.len() / 2).unwrap();
+        }
+    }
+    return count;
 }
+
+fn benchmark_day5(c: &mut Criterion) {
+    let s: String = fs::read_to_string("./input/05.txt").unwrap();
+    let pi = parse(&s);
+    let mut group = c.benchmark_group("part2");
+    for i in [20u64, 21u64].iter() {
+        group.bench_with_input(BenchmarkId::new("old", i), i, |b, i| {
+            b.iter(|| part2_old(&pi))
+        });
+        group.bench_with_input(BenchmarkId::new("insertion", i), i, |b, i| {
+            b.iter(|| part2(&pi))
+        });
+        group.bench_with_input(BenchmarkId::new("sort", i), i, |b, i| {
+            b.iter(|| part2_alternative(&pi))
+        });
+    }
+    group.finish();
+}
+
+criterion_group!(benches, benchmark_day5);
+criterion_main!(benches);
