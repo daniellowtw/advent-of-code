@@ -40,14 +40,13 @@ fn main() -> io::Result<()> {
 
     let mut file = File::create(&file_path)?;
     let template = format!(
-        r#"
-use std::fs;
+        r#"use std::fs;
 
-fn part1() -> i32 {{
+fn part1(pi: Vec<Vec<i32>>) -> i32 {{
     return 0;
 }}
 
-fn part2() -> i32 {{
+fn part2(pi: Vec<Vec<i32>>) -> i32 {{
     return 0;
 }}
 
@@ -57,8 +56,8 @@ fn main() {{
     let ss: Vec<Vec<i32>> = s.split("\n")
     .filter(|x| !x.is_empty())
     .map(|x| x.split_whitespace().map(|y| y.parse::<i32>().unwrap()).collect()).collect();
-    println!("{{}}", part1());
-    // println!("{{}}", part2());
+    println!("{{}}", part1(ss));
+    // println!("{{}}", part2(ss));
 }}
 "#,
         day, day

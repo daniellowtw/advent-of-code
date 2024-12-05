@@ -26,10 +26,9 @@ pub fn get_example(year: u32, day: u32) -> Result<String, Box<dyn Error>> {
     let response = client.get(&url).headers(headers).send()?.text()?;
     let mut flag = false;
     let mut stringbuf = String::new();
-    for line in response.lines() {
-        if line.contains("<p>For example:</p>") {
+    for line in response.lines().skip_while(|l| !l.contains("example")) {
+        if line.contains("<pre><code>") {
             flag = true;
-            continue;
         }
         if flag {
             if line.contains("</pre>") {
