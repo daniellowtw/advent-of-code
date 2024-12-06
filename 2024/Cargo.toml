@@ -12,6 +12,8 @@ serde_json = { version = "1.0", default-features = false, features = ["alloc"] }
 dirs = "4.0"
 regex = { version = "1.3", features = ["std"], default-features = false }
 criterion = { version = "0.5", features = ["html_reports"] }
+num = "0.4.3"
+num-complex = "0.4.6"
 
 [[bench]]
 name = "my_benchmark"
