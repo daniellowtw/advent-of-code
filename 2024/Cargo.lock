@@ -46,6 +46,7 @@ dependencies = [
  "dirs",
  "num",
  "num-complex",
+ "rayon",
  "regex",
  "reqwest",
  "serde",

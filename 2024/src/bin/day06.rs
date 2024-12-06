@@ -110,16 +110,23 @@ fn part1(pi: &PuzzleInput) -> i32 {
     return move_until_out(pi).len() as i32;
 }
 
+use rayon::prelude::*;
+
 fn part2(pi: &mut PuzzleInput) -> i32 {
     let visited = move_until_out(&pi);
+    // Convert HashSet to Vec to use par_iter
+    // This brings down the time from 1s -> 0.3s.
     return visited
         .into_iter()
-        .filter(|&(x, y)| {
-            pi.grid[x as usize][y as usize] = '#';
-            let valid = is_loop(&pi);
-            pi.grid[x as usize][y as usize] = '.';
-            return valid;
+        .collect::<Vec<_>>()
+        .par_iter()
+        .map(|&(x, y)| {
+            let mut pi_clone = pi.clone(); 
+            pi_clone.grid[x as usize][y as usize] = '#';
+            let valid = is_loop(&pi_clone);
+            valid
         })
+        .filter(|&valid| valid)
         .count() as i32;
 }
 
