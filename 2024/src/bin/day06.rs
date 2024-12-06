@@ -1,27 +1,21 @@
 use std::{collections::HashSet, fs};
 
-use ::num::Complex;
-
-fn next_move(
-    pi: &PuzzleInput,
-    x: i32,
-    y: i32,
-    dir: Complex<i32>,
-) -> Option<(i32, i32, Complex<i32>)> {
-    let i = Complex::new(0, -1); // Complex number for rotation
-    let pos = Complex::new(x, y);
-    let next_pos = pos + dir;
-    if !pi.is_valid(next_pos.re, next_pos.im) {
+fn next_move(pi: &PuzzleInput, x: i32, y: i32, dir: Direction) -> Option<(i32, i32, Direction)> {
+    let (a, b) = dir.to_offset();
+    let next_pos = (x + a, y + b);
+    if !pi.is_valid(next_pos.0, next_pos.1) {
         return None;
     }
-    if pi.val(next_pos.re, next_pos.im) == '#' {
-        let next_pos = pos + dir * i; // Rotate left
-        if !pi.is_valid(next_pos.re, next_pos.im) {
+    if pi.val(next_pos.0, next_pos.1) == '#' {
+        let dir = dir.next();
+        let (a, b) = dir.to_offset();
+        let next_pos = (x + a, y + b);
+        if !pi.is_valid(next_pos.0, next_pos.1) {
             return None;
         }
-        return Some((next_pos.re, next_pos.im, dir * i));
+        return Some((next_pos.0, next_pos.1, dir));
     } else {
-        return Some((next_pos.re, next_pos.im, dir));
+        return Some((next_pos.0, next_pos.1, dir));
     }
 }
 
@@ -64,12 +58,12 @@ fn parse(s: &str) -> PuzzleInput {
 }
 fn is_loop(pi: &PuzzleInput) -> bool {
     let mut curr_pos = (pi.start.0 as i32, pi.start.1 as i32);
-    let mut current_dir = Complex::new(-1, 0);
+    let mut current_dir = Direction::Up;
     // My first attempt used a new enum type for the 4 directions.
     // Not using Enum cuts from 5s -> 1s
-    // let mut visited_with_dir: HashSet<(i32, i32, i8)> = HashSet::new(); 
+    // let mut visited_with_dir: HashSet<(i32, i32, i8)> = HashSet::new();
     // This is fast but doing the rotation is annoying. Complex numbers gives some ergonomics but is slightly slower.
-    let mut visited_with_dir: HashSet<(i32, i32, Complex<i32>)> = HashSet::new();
+    let mut visited_with_dir: HashSet<(i32, i32, i8)> = HashSet::new();
     loop {
         if !pi.is_valid(curr_pos.0, curr_pos.1) {
             return false;
@@ -77,12 +71,12 @@ fn is_loop(pi: &PuzzleInput) -> bool {
         match next_move(&pi, curr_pos.0, curr_pos.1, current_dir) {
             Some((nx, ny, next_dir)) => {
                 if current_dir != next_dir {
-                    if visited_with_dir.contains(&(curr_pos.0, curr_pos.1, next_dir)) {
+                    if visited_with_dir.contains(&(curr_pos.0, curr_pos.1, next_dir as i8)) {
                         return true;
                     }
                     // This is a huge optimization. Only store the corners.
                     // Storing every single history takes about 20s. Storing corners only takes 5s
-                    visited_with_dir.insert((curr_pos.0, curr_pos.1, next_dir));
+                    visited_with_dir.insert((curr_pos.0, curr_pos.1, next_dir as i8));
                     // Very important to only change direction. Because we might not be able to move if the new pos is a #
                     current_dir = next_dir;
                 } else {
@@ -96,7 +90,7 @@ fn is_loop(pi: &PuzzleInput) -> bool {
 
 fn move_until_out(pi: &PuzzleInput) -> HashSet<(i32, i32)> {
     let mut curr_pos = (pi.start.0 as i32, pi.start.1 as i32);
-    let mut current_dir = Complex::new(-1, 0);
+    let mut current_dir = Direction::Up;
     let mut visited: HashSet<(i32, i32)> = HashSet::new();
     while pi.is_valid(curr_pos.0, curr_pos.1) {
         visited.insert(curr_pos);
@@ -116,22 +110,44 @@ fn part1(pi: &PuzzleInput) -> i32 {
     return move_until_out(pi).len() as i32;
 }
 
-fn part2(pi_original: &PuzzleInput) -> i32 {
-    let mut pi = pi_original.clone();
-    let start_pos = (pi.start.0 as i32, pi.start.1 as i32);
+fn part2(pi: &mut PuzzleInput) -> i32 {
     let visited = move_until_out(&pi);
     return visited
         .into_iter()
         .filter(|&(x, y)| {
-            if x == start_pos.0 && y == start_pos.1 {
-                return false;
-            }
             pi.grid[x as usize][y as usize] = '#';
             let valid = is_loop(&pi);
-            pi.grid[x as usize][y as usize] = pi_original.grid[x as usize][y as usize];
+            pi.grid[x as usize][y as usize] = '.';
             return valid;
         })
         .count() as i32;
+}
+
+#[derive(PartialEq, Eq, Debug, Clone, Copy)]
+enum Direction {
+    Up,
+    Down,
+    Left,
+    Right,
+}
+
+impl Direction {
+    fn to_offset(self) -> (i32, i32) {
+        match self {
+            Direction::Up => (-1, 0),
+            Direction::Down => (1, 0),
+            Direction::Left => (0, -1),
+            Direction::Right => (0, 1),
+        }
+    }
+    fn next(self) -> Direction {
+        match self {
+            Direction::Up => Direction::Right,
+            Direction::Right => Direction::Down,
+            Direction::Down => Direction::Left,
+            Direction::Left => Direction::Up,
+        }
+    }
 }
 
 // Ignore
@@ -157,7 +173,7 @@ fn _part2_old(pi: &PuzzleInput) -> HashSet<(i32, i32)> {
 fn main() {
     let s: String = fs::read_to_string("./input/06.txt").unwrap();
     // let s: String = fs::read_to_string("./input/example-06.txt").unwrap();
-    let pi = parse(&s);
+    let mut pi = parse(&s);
     println!("{}", part1(&pi));
-    println!("{}", part2(&pi));
+    println!("{}", part2(&mut pi));
 }
