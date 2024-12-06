@@ -110,6 +110,7 @@ fn part1(pi: &PuzzleInput) -> i32 {
     return move_until_out(pi).len() as i32;
 }
 
+use arboard::Clipboard;
 use rayon::prelude::*;
 
 fn part2(pi: &mut PuzzleInput) -> i32 {
@@ -121,7 +122,7 @@ fn part2(pi: &mut PuzzleInput) -> i32 {
         .collect::<Vec<_>>()
         .par_iter()
         .map(|&(x, y)| {
-            let mut pi_clone = pi.clone(); 
+            let mut pi_clone = pi.clone();
             pi_clone.grid[x as usize][y as usize] = '#';
             let valid = is_loop(&pi_clone);
             valid
@@ -182,5 +183,12 @@ fn main() {
     // let s: String = fs::read_to_string("./input/example-06.txt").unwrap();
     let mut pi = parse(&s);
     println!("{}", part1(&pi));
-    println!("{}", part2(&mut pi));
+    let ans = part2(&mut pi);
+    println!("{}", ans);
+
+    let mut clipboard = Clipboard::new().expect("Failed to access clipboard");
+    let new_text = format!("{}", ans);
+    clipboard
+        .set_text(&new_text)
+        .expect("Failed to set clipboard text");
 }
