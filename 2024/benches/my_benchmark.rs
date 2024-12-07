@@ -138,7 +138,8 @@ fn part2_old(pi: &PuzzleInput) -> i32 {
 fn benchmark_day5(c: &mut Criterion) {
     let s: String = fs::read_to_string("./input/05.txt").unwrap();
     let pi = parse(&s);
-    let mut group = c.benchmark_group("part2");
+    let mut group: criterion::BenchmarkGroup<'_, criterion::measurement::WallTime> =
+        c.benchmark_group("part2");
     for i in [20u64, 21u64].iter() {
         group.bench_with_input(BenchmarkId::new("old", i), i, |b, i| {
             b.iter(|| part2_old(&pi))
