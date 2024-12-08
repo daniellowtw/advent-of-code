@@ -16,6 +16,7 @@ num = "0.4.3"
 num-complex = "0.4.6"
 rayon = "1.10.0"
 arboard = "3.4.1"
+itertools = "0.10"
 
 [[bench]]
 name = "my_benchmark"

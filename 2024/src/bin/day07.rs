@@ -1,5 +1,5 @@
-use std::{collections::VecDeque, fs};
 use rayon::prelude::*;
+use std::{collections::VecDeque, fs};
 
 fn conc(a: i64, b2: i64) -> i64 {
     // Previously I inlined this and was using .to_string().len() and raising 10 to that power. It's slower.
@@ -36,7 +36,7 @@ fn solvable2(target: &i64, numbers: &Vec<i64>) -> bool {
                 continue;
             }
 
-            // This is a bit more aggressive pruning from the other direction. 
+            // This is a bit more aggressive pruning from the other direction.
             // The following reduced it by another 0.1s.
             let mut is_possible = false;
             let mut acc2 = acc;

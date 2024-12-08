@@ -45,6 +45,7 @@ dependencies = [
  "arboard",
  "criterion",
  "dirs",
+ "itertools",
  "num",
  "num-complex",
  "rayon",
