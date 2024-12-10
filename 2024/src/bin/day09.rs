@@ -56,7 +56,7 @@ fn part1(slots: &Vec<Slot>) -> i64 {
     return calculate_score(final_arr);
 }
 
-fn part2(slots: &Vec<Slot>) -> i64 {
+fn _part2(slots: &Vec<Slot>) -> i64 {
     // My original solution basically called a lot of .remove() and .insert() on this vector.
     // That resulted a runtime of about 4.5s. With this new solution, I chose the datastructure to avoid these operations.
     let mut final_arr: Vec<Slot> = slots.clone();
@@ -112,6 +112,109 @@ fn part2(slots: &Vec<Slot>) -> i64 {
     return score;
 }
 
+fn part2_segment(slots: &Vec<Slot>) -> i64 {
+    // I read on reddit some people mentioned segment tree.
+    // That will replace the looking up of the space with O(log N) time instead of the previous O(N) time
+    let mut final_arr: Vec<Slot> = slots.clone();
+
+    // Set up the segment tree.
+    // Here I'm encoding the segment tree as a flat array.
+    // The idea is that the parent of a node is at i/2, the left child is at i*2, and the right child is at i*2+1.
+    let stree_len = 2_usize.pow(slots.len().ilog2() + 1);
+    let mut stree: Vec<i8> = vec![];
+    for _ in 0..stree_len * 2 {
+        stree.push(0);
+    }
+    // println!("stree_len {} slots {} {}", stree_len, slots.len(), stree.len());
+
+    // Fill in the leaf nodes.
+    for i in stree_len..stree_len + slots.len() {
+        stree[i] = match { &slots[i - stree_len] } {
+            Slot::Num(_, _) => 0,
+            Slot::Space(_, space, _) => *space,
+        }
+    }
+
+    // Populate the rest of the segment tree.
+    for i in (1..stree_len).rev() {
+        let left = i * 2;
+        let right = i * 2 + 1;
+        stree[i] = std::cmp::max(stree[left], stree[right]);
+    }
+
+    // candidate_val tracks the block that we want to move. We can derive the index to find this block easily.
+    let mut candidate_val: usize = slots.len() / 2;
+    while candidate_val > 1 {
+        // The idea is simple, we locate the candidate, figure out the size of the block.
+        // Then we iterate to find a slot that fits.
+        // The key idea is we can update that slot keeping the indices the same by adding to the array within the slot.
+        let curr_pos = candidate_val * 2;
+        let (v, need) = match &final_arr[curr_pos] {
+            Slot::Num(v, need) => (*v, *need),
+            _ => panic!("should not happen {}", curr_pos),
+        };
+
+        // Find a space that fits it
+        let mut pos_option: Option<usize> = None;
+        let mut initial_i = 1;
+        while initial_i <= stree_len {
+            let i = initial_i;
+            let left = i * 2;
+            let right = i * 2 + 1;
+            // println!("Looking for {}", need);
+            if stree[left] >= need {
+                pos_option = Some(left);
+                // println!("moving left {} ({:?}) -> {} ({:?}))", initial_i, stree[i], left, stree[left]);
+                initial_i = left;
+            } else if stree[right] >= need {
+                pos_option = Some(right);
+                // println!("moving right {} ({:?}) -> {} ({:?}))", initial_i, stree[i], right, stree[right]);
+                initial_i = right;
+            } else {
+                // println!("cannot move {} ({:?}) {} ({:?}))", left, stree[left], right, stree[right]);
+                break;
+            }
+        }
+
+        if let Some(pos) = pos_option {
+            let pos = pos - stree_len;
+            if pos < curr_pos {
+                // println!("Found a place to move {}  to {}", candidate_val, pos);
+                // Remove the candidate because we can move!
+                final_arr[curr_pos] = Slot::Space([(0, 0); 9], need, 0);
+                let current_val = &final_arr[pos];
+                match current_val {
+                    Slot::Space(mut freq, space, idx) => {
+                        freq[*idx] = (v, need);
+                        stree[pos + stree_len] = *space - need;
+                        let mut i = (pos + stree_len) / 2;
+                        while i > 1 {
+                            let left = i * 2;
+                            let right = i * 2 + 1;
+                            stree[i] = std::cmp::max(stree[left], stree[right]);
+                            i /= 2;
+                        }
+                        final_arr[pos] = Slot::Space(freq, space - need, idx + 1);
+                    }
+                    _ => {
+                        panic!("should not happen");
+                    }
+                }
+            }
+            // dbg!(&final_arr);
+        }
+        candidate_val -= 1;
+    }
+
+    let score = calculate_score(final_arr);
+    // This indeed improves the timing.
+    // Before cargo run --bin day09  0.4s
+    // After cargo run --bin day09  0.12s
+    // before: cargo build --bin --release day09 && time ./target/release/day09 0.018
+    // after: cargo build --bin --release day09 && time ./target/release/day09 0.005
+    return score;
+}
+
 fn calculate_score(final_arr: Vec<Slot>) -> i64 {
     let mut score: i64 = 0;
     let mut idx = 0;
@@ -160,8 +263,9 @@ fn main() {
         })
         .collect();
     println!("{}", part1(&slots));
-    println!("{}", part2(&slots));
+    // println!("{}", _part2(&slots));
     // Both parts ran in 0.5s when compiled with `cargo build --bin day09`
     // Both parts ran in 0.2 when compiled with `cargo build --release --bin day09`
     // With `cargo run --bin day09`, it took 1.4s.
+    println!("{}", part2_segment(&slots));
 }
