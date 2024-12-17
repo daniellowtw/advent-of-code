@@ -1,4 +1,7 @@
-use std::{collections::{BinaryHeap, HashSet}, fs};
+use std::{
+    collections::{BinaryHeap, HashSet},
+    fs,
+};
 
 struct PuzzleInput {
     grid: Vec<Vec<char>>,
@@ -77,10 +80,22 @@ fn part1(pi: &PuzzleInput) -> i32 {
     let mut queue: BinaryHeap<Data> = BinaryHeap::new();
     let mut scores = vec![vec![99999999; pi.grid[0].len()]; pi.grid.len()];
     let (x, y) = pi.start;
-    queue.push(Data { x, y, score: 0, dir: Direction::E, history: vec![] });
+    queue.push(Data {
+        x,
+        y,
+        score: 0,
+        dir: Direction::E,
+        history: vec![],
+    });
 
     while !queue.is_empty() {
-        let Data { x, y, score, dir , history: _} = queue.pop().unwrap();
+        let Data {
+            x,
+            y,
+            score,
+            dir,
+            history: _,
+        } = queue.pop().unwrap();
         // println!("{} {} {} {:?}", x, y, score, dir);
 
         if pi.grid[x as usize][y as usize] == '#' {
@@ -98,13 +113,31 @@ fn part1(pi: &PuzzleInput) -> i32 {
 
         let (a, b, n1, n2) = to_offset(dir);
         let (nx, ny) = (x + a, y + b);
-        queue.push(Data{ x: nx, y: ny, score: score + 1, dir, history:vec![] });
+        queue.push(Data {
+            x: nx,
+            y: ny,
+            score: score + 1,
+            dir,
+            history: vec![],
+        });
         let (a, b, _, _) = to_offset(n1);
         let (nx, ny) = (x + a, y + b);
-        queue.push(Data{ x: nx, y: ny, score: score + 1 + 1000, dir: n1 , history:vec![]});
+        queue.push(Data {
+            x: nx,
+            y: ny,
+            score: score + 1 + 1000,
+            dir: n1,
+            history: vec![],
+        });
         let (a, b, _, _) = to_offset(n2);
         let (nx, ny) = (x + a, y + b);
-        queue.push(Data{ x: nx, y: ny, score: score + 1 + 1000, dir: n2 , history:vec![]});
+        queue.push(Data {
+            x: nx,
+            y: ny,
+            score: score + 1 + 1000,
+            dir: n2,
+            history: vec![],
+        });
     }
 
     // _display(&pi.grid, &HashSet::new());
@@ -116,11 +149,23 @@ fn part2(pi: &PuzzleInput) -> i32 {
     let mut scores = vec![vec![99999999; pi.grid[0].len()]; pi.grid.len()];
     let mut best_path_score = 99999999;
     let (x, y) = pi.start;
-    queue.push(Data { x, y, score: 0, dir: Direction::E, history: vec![(x, y)] });
+    queue.push(Data {
+        x,
+        y,
+        score: 0,
+        dir: Direction::E,
+        history: vec![(x, y)],
+    });
     let mut best_path = vec![];
 
     while !queue.is_empty() {
-        let Data { x, y, score, dir , history} = queue.pop().unwrap();
+        let Data {
+            x,
+            y,
+            score,
+            dir,
+            history,
+        } = queue.pop().unwrap();
 
         if pi.grid[x as usize][y as usize] == '#' {
             continue;
@@ -135,26 +180,43 @@ fn part2(pi: &PuzzleInput) -> i32 {
             scores[x as usize][y as usize] = score;
         }
 
-        if score > best_path_score{
+        if score > best_path_score {
             break;
         }
-
 
         let (a, b, n1, n2) = to_offset(dir);
         let (nx, ny) = (x + a, y + b);
         let mut new_history = history.clone();
         new_history.push((nx, ny));
-        queue.push(Data{ x: nx, y: ny, score: score + 1, dir, history:new_history });
+        queue.push(Data {
+            x: nx,
+            y: ny,
+            score: score + 1,
+            dir,
+            history: new_history,
+        });
         let (a, b, _, _) = to_offset(n1);
         let (nx, ny) = (x + a, y + b);
         let mut new_history = history.clone();
         new_history.push((nx, ny));
-        queue.push(Data{ x: nx, y: ny, score: score + 1 + 1000, dir: n1 , history: new_history});
+        queue.push(Data {
+            x: nx,
+            y: ny,
+            score: score + 1 + 1000,
+            dir: n1,
+            history: new_history,
+        });
         let (a, b, _, _) = to_offset(n2);
         let (nx, ny) = (x + a, y + b);
         let mut new_history = history.clone();
         new_history.push((nx, ny));
-        queue.push(Data{ x: nx, y: ny, score: score + 1 + 1000, dir: n2, history: new_history });
+        queue.push(Data {
+            x: nx,
+            y: ny,
+            score: score + 1 + 1000,
+            dir: n2,
+            history: new_history,
+        });
     }
 
     let seen: HashSet<(i32, i32)> = best_path.into_iter().flatten().collect();
