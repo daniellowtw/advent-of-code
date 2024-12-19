@@ -24,7 +24,7 @@ fn part2(ss: &Vec<Vec<Inst>>) -> i32 {
             }
         }
     }
-    return result;
+    result
 }
 
 fn extract_all_mul_pairs(s: &str) -> Vec<(i32, i32)> {
@@ -49,9 +49,9 @@ fn extract_all_mul_pairs_with_conditionals(s: &str) -> Vec<Inst> {
         .map(|x| {
             let ss = x.get(0).unwrap().as_str();
             match ss {
-                "don't()" => return Inst::Exclude,
-                "do()" => return Inst::Include,
-                _ => return Inst::Mul(x[1].parse::<i32>().unwrap(), x[2].parse::<i32>().unwrap()),
+                "don't()" => Inst::Exclude,
+                "do()" => Inst::Include,
+                _ => Inst::Mul(x[1].parse::<i32>().unwrap(), x[2].parse::<i32>().unwrap()),
             }
         })
         .collect();
@@ -64,13 +64,13 @@ fn main() {
     let ss: Vec<Vec<(i32, i32)>> = s
         .split("\n")
         .filter(|x| !x.is_empty())
-        .map(|x| extract_all_mul_pairs(x))
+        .map(extract_all_mul_pairs)
         .collect();
     println!("{}", part1(&ss));
     let ss2: Vec<Vec<Inst>> = s
         .split("\n")
         .filter(|x| !x.is_empty())
-        .map(|x| extract_all_mul_pairs_with_conditionals(x))
+        .map(extract_all_mul_pairs_with_conditionals)
         .collect();
     println!("{}", part2(&ss2));
 }

@@ -13,20 +13,20 @@ fn _part1(pi: &Vec<i64>, steps: i64) -> i64 {
         // println!("{:?}", &next_stack);
         curr_stack = next_stack;
     }
-    return curr_stack.len() as i64;
+    curr_stack.len() as i64
 }
 
 fn f(n: i64) -> Vec<i64> {
     if n == 0 {
-        return vec![1];
+        vec![1]
     } else {
         let n_len = n.to_string().len();
         if n_len % 2 == 0 {
             let ss = 10_i64.pow((n_len / 2) as u32);
             // println!("{} -> {} {}", n, n / ss, n & ss);
-            return vec![n / ss, n % ss];
+            vec![n / ss, n % ss]
         } else {
-            return vec![n * 2024];
+            vec![n * 2024]
         }
     }
 }
@@ -47,7 +47,7 @@ fn part2(pi: &Vec<i64>, steps: i64) -> i64 {
         curr_freq = next_freq;
     }
     let total = curr_freq.iter().fold(0, |acc, x| acc + x.1);
-    return total;
+    total
 }
 
 fn main() {
@@ -55,7 +55,6 @@ fn main() {
     let s: String = fs::read_to_string("./input/11.txt").unwrap();
     // let s: String = fs::read_to_string("./input/example-11.txt").unwrap();
     let ss: Vec<i64> = s
-        .trim()
         .split_whitespace()
         .map(|y| y.parse::<i64>().unwrap())
         .collect();

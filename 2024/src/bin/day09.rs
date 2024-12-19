@@ -15,7 +15,7 @@ fn part1(slots: &Vec<Slot>) -> i64 {
     let mut final_arr: Vec<Slot> = Vec::new();
 
     let mut candidate_idx: usize = slots.len() - 1;
-    let mut candidate: Slot = (&slots[candidate_idx]).clone();
+    let mut candidate: Slot = slots[candidate_idx].clone();
 
     // The idea is to keep a pointer to the block that we want to move
     // This block is mutable for cases where we only partially fill the space.
@@ -38,7 +38,7 @@ fn part1(slots: &Vec<Slot>) -> i64 {
                         if num_to_fill >= num_freq {
                             final_arr.push(Slot::Num(num_val, num_freq));
                             candidate_idx -= 2;
-                            candidate = (&slots[candidate_idx]).clone();
+                            candidate = slots[candidate_idx].clone();
                             num_to_fill -= num_freq;
                         } else {
                             final_arr.push(Slot::Num(num_val, num_to_fill));
@@ -53,7 +53,7 @@ fn part1(slots: &Vec<Slot>) -> i64 {
         }
     }
 
-    return calculate_score(final_arr);
+    calculate_score(final_arr)
 }
 
 fn _part2(slots: &Vec<Slot>) -> i64 {
@@ -108,8 +108,8 @@ fn _part2(slots: &Vec<Slot>) -> i64 {
         candidate_val -= 1;
     }
 
-    let score = calculate_score(final_arr);
-    return score;
+    
+    calculate_score(final_arr)
 }
 
 fn part2_segment(slots: &Vec<Slot>) -> i64 {
@@ -129,7 +129,7 @@ fn part2_segment(slots: &Vec<Slot>) -> i64 {
 
     // Fill in the leaf nodes.
     for i in stree_len..stree_len + slots.len() {
-        stree[i] = match { &slots[i - stree_len] } {
+        stree[i] = match &slots[i - stree_len] {
             Slot::Num(_, _) => 0,
             Slot::Space(_, space, _) => *space,
         }
@@ -206,13 +206,13 @@ fn part2_segment(slots: &Vec<Slot>) -> i64 {
         candidate_val -= 1;
     }
 
-    let score = calculate_score(final_arr);
+    
     // This indeed improves the timing.
     // Before cargo run --bin day09  0.4s
     // After cargo run --bin day09  0.12s
     // before: cargo build --bin --release day09 && time ./target/release/day09 0.018
     // after: cargo build --bin --release day09 && time ./target/release/day09 0.005
-    return score;
+    calculate_score(final_arr)
 }
 
 fn calculate_score(final_arr: Vec<Slot>) -> i64 {
@@ -222,7 +222,7 @@ fn calculate_score(final_arr: Vec<Slot>) -> i64 {
         match i {
             Slot::Num(num, freq) => {
                 for _ in 0..*freq {
-                    score += *num as i64 * idx;
+                    score += { *num } * idx;
                     idx += 1;
                 }
             }

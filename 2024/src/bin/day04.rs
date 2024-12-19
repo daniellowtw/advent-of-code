@@ -9,7 +9,7 @@ struct PuzzleInput {
 
 impl PuzzleInput {
     fn is_valid(&self, x: i32, y: i32) -> bool {
-        return x >= 0 && y >= 0 && x < self.height as i32 && y < self.width as i32;
+        x >= 0 && y >= 0 && x < self.height as i32 && y < self.width as i32
     }
 }
 
@@ -22,11 +22,11 @@ fn parse(s: &str) -> PuzzleInput {
         .collect();
     let height = grid.len();
     let width = grid[0].len();
-    return PuzzleInput {
+    PuzzleInput {
         grid,
         height,
         width,
-    };
+    }
 }
 
 fn part1(ss: &PuzzleInput) -> i32 {
@@ -52,7 +52,7 @@ fn part1(ss: &PuzzleInput) -> i32 {
                 })
         })
         .count();
-    return count as i32;
+    count as i32
 }
 
 fn part2(ss: &PuzzleInput) -> i32 {
@@ -71,7 +71,7 @@ fn part2(ss: &PuzzleInput) -> i32 {
             cond1 || cond2
         })
         .count();
-    return count as i32;
+    count as i32
 }
 
 fn main() {

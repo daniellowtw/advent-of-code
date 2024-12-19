@@ -10,7 +10,7 @@ fn adjacent_points(a: &(i32, i32), b: &(i32, i32)) -> ((i32, i32), (i32, i32)) {
     }
     let dx = b.0 - a.0;
     let dy = b.1 - a.1;
-    return ((a.0 - dx, a.1 - dy), (b.0 + dx, b.1 + dy));
+    ((a.0 - dx, a.1 - dy), (b.0 + dx, b.1 + dy))
 }
 
 fn points_extended(a: &(i32, i32), b: &(i32, i32), w: i32, h: i32) -> Vec<(i32, i32)> {
@@ -38,7 +38,7 @@ fn points_extended(a: &(i32, i32), b: &(i32, i32), w: i32, h: i32) -> Vec<(i32, 
         }
         res.push((nx, ny));
     }
-    return res;
+    res
 }
 
 fn _print_board(pi: &Vec<Vec<char>>, points: &HashSet<(i32, i32)>) {
@@ -64,7 +64,7 @@ fn part1(pi: &Vec<Vec<char>>) -> i32 {
         for x in 0..w {
             let c = pi[y][x];
             if c != '.' {
-                let group = groups.entry(c).or_insert(HashSet::new());
+                let group = groups.entry(c).or_default();
                 group.insert((x as i32, y as i32));
             }
         }
@@ -73,7 +73,7 @@ fn part1(pi: &Vec<Vec<char>>) -> i32 {
     let mut points: HashSet<(i32, i32)> = HashSet::new();
     for (_, group) in groups.iter() {
         // get all combinations of pairs of points
-        for combination in group.into_iter().combinations(2) {
+        for combination in group.iter().combinations(2) {
             let (a, b) = adjacent_points(combination[0], combination[1]);
             if !(a.0 < 0 || a.1 < 0 || a.0 >= w as i32 || a.1 >= h as i32) {
                 points.insert(a);
@@ -85,7 +85,7 @@ fn part1(pi: &Vec<Vec<char>>) -> i32 {
     }
 
     // print_board(&pi, &points);
-    return points.len() as i32;
+    points.len() as i32
 }
 
 fn part2(pi: &Vec<Vec<char>>) -> i32 {
@@ -96,7 +96,7 @@ fn part2(pi: &Vec<Vec<char>>) -> i32 {
         for x in 0..w {
             let c = pi[y][x];
             if c != '.' {
-                let group = groups.entry(c).or_insert(HashSet::new());
+                let group = groups.entry(c).or_default();
                 group.insert((x as i32, y as i32));
             }
         }
@@ -104,7 +104,7 @@ fn part2(pi: &Vec<Vec<char>>) -> i32 {
 
     let mut points: HashSet<(i32, i32)> = HashSet::new();
     for (_, group) in groups.iter() {
-        for combination in group.into_iter().combinations(2) {
+        for combination in group.iter().combinations(2) {
             points_extended(combination[0], combination[1], w as i32, h as i32)
                 .iter()
                 .for_each(|p| {
@@ -114,7 +114,7 @@ fn part2(pi: &Vec<Vec<char>>) -> i32 {
     }
 
     // _print_board(&pi, &points);
-    return points.len() as i32;
+    points.len() as i32
 }
 
 fn main() {

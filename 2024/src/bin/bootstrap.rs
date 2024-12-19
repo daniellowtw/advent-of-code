@@ -16,7 +16,7 @@ fn main() -> io::Result<()> {
     let day: u32 = args[2].parse().expect("Day must be a number");
 
     let input_dir = Path::new("input");
-    fs::create_dir_all(&input_dir)?;
+    fs::create_dir_all(input_dir)?;
     let bin_dir = Path::new("src/bin");
     fs::create_dir_all(bin_dir)?;
 

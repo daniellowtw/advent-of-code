@@ -16,8 +16,8 @@ fn part1(pi: &Vec<Vec<i32>>) -> i32 {
     }
 
     // BFS
-    while stack.len() > 0 {
-        let ((x, y), (a, b), val) = stack.pop().unwrap();
+    while let Some(((x, y), (a, b), val)) = stack.pop() {
+        
         for (dy, dx) in [(-1, 0), (1, 0), (0, -1), (0, 1)] {
             if dx == 0 && dy == 0 {
                 continue;
@@ -29,7 +29,7 @@ fn part1(pi: &Vec<Vec<i32>>) -> i32 {
             }
             if pi[ny as usize][nx as usize] == val + 1 {
                 if val == 8 {
-                    score.entry((a, b)).or_insert(HashSet::new()).insert((x, y));
+                    score.entry((a, b)).or_default().insert((x, y));
                 } else {
                     stack.push(((nx as usize, ny as usize), (a, b), val + 1));
                 }
@@ -56,8 +56,8 @@ fn part2(pi: &Vec<Vec<i32>>) -> i32 {
         }
     }
 
-    while stack.len() > 0 {
-        let ((x, y), (a, b), val) = stack.pop().unwrap();
+    while let Some(((x, y), (a, b), val)) = stack.pop() {
+        
         for (dy, dx) in [(-1, 0), (1, 0), (0, -1), (0, 1)] {
             if dx == 0 && dy == 0 {
                 continue;
@@ -69,7 +69,7 @@ fn part2(pi: &Vec<Vec<i32>>) -> i32 {
             }
             if pi[ny as usize][nx as usize] == val + 1 {
                 if val == 8 {
-                    score.entry((a, b)).or_insert(Vec::new()).push((x, y));
+                    score.entry((a, b)).or_default().push((x, y));
                 } else {
                     stack.push(((nx as usize, ny as usize), (a, b), val + 1));
                 }

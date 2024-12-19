@@ -35,11 +35,11 @@ pub fn get_example(year: u32, day: u32) -> Result<String, Box<dyn Error>> {
                 break;
             } else {
                 stringbuf.push_str(line.strip_prefix("<pre><code>").unwrap_or(line));
-                stringbuf.push_str("\n");
+                stringbuf.push('\n');
             }
         }
     }
-    return Ok(stringbuf);
+    Ok(stringbuf)
 }
 
 pub fn get_puzzle_input(year: u32, day: u32) -> Result<String, Box<dyn std::error::Error>> {

@@ -16,7 +16,7 @@ fn conc(a: i64, b2: i64) -> i64 {
 fn solvable2(target: &i64, numbers: &Vec<i64>) -> bool {
     let mut queue = VecDeque::new();
     queue.push_back(('+', 0, 0));
-    while queue.len() > 0 {
+    while !queue.is_empty() {
         // dbg!(queue.len());
         let (op, idx, acc) = queue.pop_front().unwrap();
 
@@ -55,13 +55,13 @@ fn solvable2(target: &i64, numbers: &Vec<i64>) -> bool {
         }
     }
 
-    return false;
+    false
 }
 
 fn solvable(target: &i64, numbers: &Vec<i64>) -> bool {
     let mut queue = VecDeque::new();
     queue.push_back(('+', 0, 0));
-    while queue.len() > 0 {
+    while !queue.is_empty() {
         let (op, idx, acc) = queue.pop_front().unwrap();
 
         if idx == numbers.len() {
@@ -79,7 +79,7 @@ fn solvable(target: &i64, numbers: &Vec<i64>) -> bool {
         }
     }
 
-    return false;
+    false
 }
 
 fn part1(pi: &Vec<(i64, Vec<i64>)>) -> i64 {
@@ -111,7 +111,7 @@ fn main() {
                 .split_whitespace()
                 .map(|y| y.parse().unwrap())
                 .collect();
-            (parts.get(0).unwrap().parse().unwrap(), rest)
+            (parts.first().unwrap().parse().unwrap(), rest)
         })
         .collect();
     println!("{}", part1(&ss));

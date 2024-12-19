@@ -48,12 +48,12 @@ fn part1(mut pi: PuzzleInput) -> i32 {
     let mut score = 0;
     for i in 0..pi.grid.len() {
         for j in 0..pi.grid[0].len() {
-            if pi.grid[i as usize][j as usize] == 'O' {
+            if pi.grid[i][j] == 'O' {
                 score += 100 * i + j;
             }
         }
     }
-    return score as i32;
+    score as i32
 }
 
 fn move_box(pi: &mut PuzzleInput, b_idx: usize, dir: (i32, i32)) -> bool {
@@ -73,7 +73,7 @@ fn move_box(pi: &mut PuzzleInput, b_idx: usize, dir: (i32, i32)) -> bool {
         }
     }
     pi.boxes[b_idx] = new_pos;
-    return true;
+    true
 }
 
 fn part2(mut pi: PuzzleInput) -> i64 {
@@ -97,7 +97,7 @@ fn part2(mut pi: PuzzleInput) -> i64 {
         }
         let boxes_to_move = pi.boxes_in_the_way(vec![next_pos]);
         // dbg!(boxes_to_move.clone());
-        if boxes_to_move.len() == 0 {
+        if boxes_to_move.is_empty() {
             curr_pos = next_pos;
             continue;
         }
@@ -125,7 +125,7 @@ fn part2(mut pi: PuzzleInput) -> i64 {
         // pi.display(curr_pos);
     }
     // pi.display(curr_pos);
-    return pi.score();
+    pi.score()
 }
 
 #[derive(Clone)]
@@ -150,10 +150,10 @@ impl PuzzleInput {
             })
             .map(|x| x.0)
             .collect();
-        return blocking;
+        blocking
     }
     fn is_wall(self: &PuzzleInput, h: i32, w: i32) -> bool {
-        return self.walls.contains(&(h, w));
+        self.walls.contains(&(h, w))
     }
     fn val(self: &PuzzleInput, h: i32, w: i32) -> char {
         self.grid[h as usize][w as usize]
@@ -163,7 +163,7 @@ impl PuzzleInput {
         self.boxes.iter().for_each(|(h, w)| {
             score += 100 * *h as i64 + *w as i64;
         });
-        return score;
+        score
     }
 }
 fn _display(pi: &PuzzleInput, pos: (i32, i32)) {
@@ -246,13 +246,13 @@ fn parse(s: &str) -> PuzzleInput {
             }
         }
     }
-    return PuzzleInput {
+    PuzzleInput {
         grid,
         instructions,
         start,
         boxes,
         walls,
-    };
+    }
 }
 
 fn main() {

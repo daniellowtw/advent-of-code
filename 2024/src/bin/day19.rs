@@ -5,7 +5,7 @@ fn count_solvable(
     towels: &Vec<&str>,
     pattern: &str,
 ) -> i64 {
-    if pattern.len() == 0 {
+    if pattern.is_empty() {
         return 1;
     }
     if cache.contains_key(pattern) {
@@ -22,11 +22,11 @@ fn count_solvable(
         }
     }
     cache.insert(pattern.to_string(), count);
-    return count;
+    count
 }
 
 fn is_solvable(towels: &Vec<&str>, pattern: &str) -> bool {
-    if pattern.len() == 0 {
+    if pattern.is_empty() {
         return true;
     }
 
@@ -39,7 +39,7 @@ fn is_solvable(towels: &Vec<&str>, pattern: &str) -> bool {
         }
     }
 
-    return false;
+    false
 }
 
 fn part1(s: &str) -> i32 {
@@ -50,7 +50,7 @@ fn part1(s: &str) -> i32 {
             count += 1;
         }
     }
-    return count;
+    count
 }
 
 fn part2(s: &str) -> i64 {
@@ -64,14 +64,14 @@ fn part2(s: &str) -> i64 {
         count += x;
         // println!("{} -> {}", p, x);
     }
-    return count;
+    count
 }
 
 fn parse(s: &str) -> (Vec<&str>, Vec<&str>) {
     let ss = s.trim().split("\n\n").collect::<Vec<&str>>();
     let towels = ss[0].split(",").map(|x| x.trim()).collect::<Vec<&str>>();
     let patterns = ss[1].lines().collect();
-    return (towels, patterns);
+    (towels, patterns)
 }
 
 fn main() {

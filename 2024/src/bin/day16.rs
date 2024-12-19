@@ -141,7 +141,7 @@ fn part1(pi: &PuzzleInput) -> i32 {
     }
 
     // _display(&pi.grid, &HashSet::new());
-    return 0;
+    0
 }
 
 fn part2(pi: &PuzzleInput) -> i32 {
@@ -221,7 +221,7 @@ fn part2(pi: &PuzzleInput) -> i32 {
 
     let seen: HashSet<(i32, i32)> = best_path.into_iter().flatten().collect();
     // _display(&pi.grid, &seen);
-    return seen.len() as i32;
+    seen.len() as i32
 }
 
 fn main() {

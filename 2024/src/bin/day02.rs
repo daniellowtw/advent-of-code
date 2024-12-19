@@ -15,7 +15,7 @@ fn is_safe(s: &Vec<i32>) -> bool {
         }
         current = x;
     }
-    return true;
+    true
 }
 
 fn is_safe_with_removal(s: &Vec<i32>) -> bool {
@@ -29,7 +29,7 @@ fn is_safe_with_removal(s: &Vec<i32>) -> bool {
             return true;
         }
     }
-    return false;
+    false
 }
 
 fn part1(ss: &Vec<Vec<i32>>) -> i32 {

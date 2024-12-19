@@ -16,7 +16,7 @@ fn solve(a: i64, b: i64, c: i64, d: i64, e: i64, f: i64) -> i64 {
     if res.is_empty() {
         return 0;
     }
-    return res.iter().min().unwrap().clone();
+    return *res.iter().min().unwrap();
 }
 
 fn solve_simultaneous(a1: i64, b1: i64, c1: i64, a2: i64, b2: i64, c2: i64) -> Option<(i64, i64)> {

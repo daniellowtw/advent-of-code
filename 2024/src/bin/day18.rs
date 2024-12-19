@@ -31,23 +31,23 @@ fn part1(s: &str) -> i32 {
     // let mut seen: HashSet<(usize, usize)> = HashSet::new();
     while !heap.is_empty() {
         let (d, x, y) = heap.pop_front().unwrap();
-        if score[y as usize][x as usize] <= d {
+        if score[y][x] <= d {
             continue;
         }
-        score[y as usize][x as usize] = d;
+        score[y][x] = d;
         if x == width && y == height {
             return d;
         }
-        if grid[y as usize][x as usize] == "#" {
+        if grid[y][x] == "#" {
             continue;
         }
-        grid[y as usize][x as usize] = "X";
+        grid[y][x] = "X";
         heap.push_back((d + 1, x + 1, y));
         heap.push_back((d + 1, x - 1, y));
         heap.push_back((d + 1, x, y + 1));
         heap.push_back((d + 1, x, y - 1));
     }
-    return 0;
+    0
 }
 
 fn part2(s: &str) -> String {
@@ -93,16 +93,16 @@ fn part2(s: &str) -> String {
             //     continue;
             // }
             // seen.insert((x, y));
-            if score[y as usize][x as usize] <= d {
+            if score[y][x] <= d {
                 continue;
             }
-            score[y as usize][x as usize] = d;
+            score[y][x] = d;
             // println!("{}, {}, {}", d, x, y);
             if x == width && y == height {
                 can_escape = true;
                 break;
             }
-            if grid[y as usize][x as usize] == "#" {
+            if grid[y][x] == "#" {
                 continue;
             }
             heap.push_back((d + 1, x + 1, y));
@@ -114,7 +114,7 @@ fn part2(s: &str) -> String {
             return format!("{},{}", ss[simulation - 1].0, ss[simulation - 1].1);
         }
     }
-    return "".to_string();
+    "".to_string()
 }
 
 fn main() {

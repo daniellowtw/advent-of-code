@@ -12,13 +12,12 @@ struct PuzzleInput {
 
 fn parse(s: &str) -> PuzzleInput {
     let parts: Vec<&str> = s.trim_end().split("\n\n").collect();
-    let rules: Vec<(i32, i32)> = parts
-        .get(0)
+    let rules: Vec<(i32, i32)> = parts.first()
         .unwrap()
         .lines()
         .map(|l| {
             let parsed: Vec<i32> = l.split("|").map(|x| x.parse::<i32>().unwrap()).collect();
-            (*parsed.get(0).unwrap(), *parsed.get(1).unwrap())
+            (*parsed.first().unwrap(), *parsed.get(1).unwrap())
         })
         .collect();
 
@@ -36,11 +35,11 @@ fn parse(s: &str) -> PuzzleInput {
             .or_insert(vec![i.1]);
     }
 
-    return PuzzleInput {
+    PuzzleInput {
         rules,
         rows,
         rules_by_id,
-    };
+    }
 }
 
 fn part1(pi: &PuzzleInput) -> i32 {
@@ -54,7 +53,7 @@ fn part1(pi: &PuzzleInput) -> i32 {
                 .iter()
                 .all(|y| !s.contains(y));
             s.insert(*x);
-            return valid;
+            valid
         }) {
             count + row.get(row.len() / 2).unwrap()
         } else {
@@ -96,7 +95,7 @@ fn part2_alternative(pi: &PuzzleInput) -> i32 {
                     return Ordering::Less;
                 }
             }
-            return Ordering::Equal;
+            Ordering::Equal
         });
         if correct_order != *row {
             // println!("{:?} -> {:?}", &r2, &current_order);

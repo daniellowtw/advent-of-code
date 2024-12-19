@@ -11,7 +11,7 @@ fn part1(pi: &Vec<Vec<char>>) -> i32 {
             let mut parameter = 0;
             let mut queue: VecDeque<(usize, usize)> = VecDeque::new();
             queue.push_back((i, j));
-            while queue.len() > 0 {
+            while !queue.is_empty() {
                 let (i, j) = queue.pop_front().unwrap();
                 if visited.contains_key(&(i, j)) {
                     continue;
@@ -48,11 +48,11 @@ fn part1(pi: &Vec<Vec<char>>) -> i32 {
         score += v * p
     }
 
-    return score;
+    score
 }
 
 fn is_valid(i: i32, j: i32, h: usize, w: usize) -> bool {
-    return i >= 0 && i < h as i32 && j >= 0 && j < w as i32;
+    i >= 0 && i < h as i32 && j >= 0 && j < w as i32
 }
 
 fn has_edge(
@@ -66,7 +66,7 @@ fn has_edge(
     pi: &Vec<Vec<char>>,
 ) -> bool {
     if !is_valid(i1, j1, h, w) {
-        return false;
+        false
     } else {
         if a != pi[i1 as usize][j1 as usize] {
             return false;
@@ -74,7 +74,7 @@ fn has_edge(
         if !is_valid(i2, j2, h, w) {
             return true;
         }
-        return pi[i1 as usize][j1 as usize] != pi[i2 as usize][j2 as usize];
+        pi[i1 as usize][j1 as usize] != pi[i2 as usize][j2 as usize]
     }
 }
 
@@ -89,7 +89,7 @@ fn part2(pi: &Vec<Vec<char>>) -> i32 {
             let mut parameter = 0;
             let mut queue: VecDeque<(usize, usize)> = VecDeque::new();
             queue.push_back((i, j));
-            while queue.len() > 0 {
+            while !queue.is_empty() {
                 let (i, j) = queue.pop_front().unwrap();
                 if visited.contains_key(&(i, j)) {
                     continue;
@@ -164,7 +164,7 @@ fn part2(pi: &Vec<Vec<char>>) -> i32 {
         score += v * p
     }
 
-    return score;
+    score
 }
 
 fn main() {

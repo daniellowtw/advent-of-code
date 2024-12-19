@@ -20,9 +20,9 @@ fn part1(pi: &str) -> String {
     let mut sb = String::new();
     for i in sm.output {
         sb.push_str(&i.to_string());
-        sb.push_str(",");
+        sb.push(',');
     }
-    return sb[0..sb.len() - 1].to_string();
+    sb[0..sb.len() - 1].to_string()
 }
 
 #[derive(Debug)]
@@ -60,11 +60,11 @@ impl<'a> StateMachine<'a> {
             0 => {
                 let exp = &self.combo(val);
                 let denom = 1 << *exp;
-                self.a = self.a / denom;
+                self.a /= denom;
             }
             1 => {
                 // Bitwise or
-                self.b = self.b ^ val as i64;
+                self.b ^= val as i64;
             }
             2 => self.b = self.combo(val) % 8,
             3 => {
@@ -72,7 +72,7 @@ impl<'a> StateMachine<'a> {
                     self.pi = val as usize;
                 }
             }
-            4 => self.b = self.b ^ self.c,
+            4 => self.b ^= self.c,
             5 => {
                 let vv = self.combo(val) % 8;
                 self.output.push(vv as i8);
@@ -153,7 +153,7 @@ fn part2(pi: &str) -> i64 {
         }
         heap = heap2;
     }
-    return 0;
+    0
 }
 
 fn satisfy(d: &Vec<i8>, i: usize, sm: &Vec<i8>) -> bool {
@@ -167,7 +167,7 @@ fn satisfy(d: &Vec<i8>, i: usize, sm: &Vec<i8>) -> bool {
             return false;
         }
     }
-    return true;
+    true
 }
 
 fn parse(input: &str) -> (i64, i64, i64, Vec<i8>) {
@@ -186,14 +186,13 @@ fn parse(input: &str) -> (i64, i64, i64, Vec<i8>) {
         .collect();
 
     let instructions: Vec<i8> = lines[1]
-        .trim()
         .split_whitespace()
         .last()
         .unwrap()
         .split(",")
         .map(|c| c.parse::<i8>().unwrap())
         .collect();
-    return (registers[0], registers[1], registers[2], instructions);
+    (registers[0], registers[1], registers[2], instructions)
 }
 
 fn main() {

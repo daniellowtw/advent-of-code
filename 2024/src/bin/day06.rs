@@ -13,9 +13,9 @@ fn next_move(pi: &PuzzleInput, x: i32, y: i32, dir: Direction) -> Option<(i32, i
         if !pi.is_valid(next_pos.0, next_pos.1) {
             return None;
         }
-        return Some((next_pos.0, next_pos.1, dir));
+        Some((next_pos.0, next_pos.1, dir))
     } else {
-        return Some((next_pos.0, next_pos.1, dir));
+        Some((next_pos.0, next_pos.1, dir))
     }
 }
 
@@ -29,7 +29,7 @@ struct PuzzleInput {
 
 impl PuzzleInput {
     fn is_valid(&self, x: i32, y: i32) -> bool {
-        return x >= 0 && y >= 0 && x < self.height as i32 && y < self.width as i32;
+        x >= 0 && y >= 0 && x < self.height as i32 && y < self.width as i32
     }
     fn val(&self, x: i32, y: i32) -> char {
         self.grid[x as usize][y as usize]
@@ -47,14 +47,14 @@ fn parse(s: &str) -> PuzzleInput {
     let width = grid[0].len();
     let start = (0..height)
         .flat_map(|x| (0..width).map(move |y| (x, y)))
-        .find(|(x, y)| grid[*x as usize][*y as usize] == '^')
+        .find(|(x, y)| grid[*x][*y] == '^')
         .unwrap();
-    return PuzzleInput {
+    PuzzleInput {
         grid,
         start,
         height,
         width,
-    };
+    }
 }
 fn is_loop(pi: &PuzzleInput) -> bool {
     let mut curr_pos = (pi.start.0 as i32, pi.start.1 as i32);
@@ -68,7 +68,7 @@ fn is_loop(pi: &PuzzleInput) -> bool {
         if !pi.is_valid(curr_pos.0, curr_pos.1) {
             return false;
         }
-        match next_move(&pi, curr_pos.0, curr_pos.1, current_dir) {
+        match next_move(pi, curr_pos.0, curr_pos.1, current_dir) {
             Some((nx, ny, next_dir)) => {
                 if current_dir != next_dir {
                     if visited_with_dir.contains(&(curr_pos.0, curr_pos.1, next_dir as i8)) {
@@ -94,7 +94,7 @@ fn move_until_out(pi: &PuzzleInput) -> HashSet<(i32, i32)> {
     let mut visited: HashSet<(i32, i32)> = HashSet::new();
     while pi.is_valid(curr_pos.0, curr_pos.1) {
         visited.insert(curr_pos);
-        match next_move(&pi, curr_pos.0, curr_pos.1, current_dir) {
+        match next_move(pi, curr_pos.0, curr_pos.1, current_dir) {
             Some((nx, ny, next_dir)) => {
                 curr_pos = (nx, ny);
                 current_dir = next_dir;
@@ -102,19 +102,19 @@ fn move_until_out(pi: &PuzzleInput) -> HashSet<(i32, i32)> {
             None => break,
         }
     }
-    return visited;
+    visited
 }
 
 fn part1(pi: &PuzzleInput) -> i32 {
     // Originally I inlined this function. But part 2 reuses this, so I refactored out.
-    return move_until_out(pi).len() as i32;
+    move_until_out(pi).len() as i32
 }
 
 use arboard::Clipboard;
 use rayon::prelude::*;
 
 fn part2(pi: &mut PuzzleInput) -> i32 {
-    let visited = move_until_out(&pi);
+    let visited = move_until_out(pi);
     // Convert HashSet to Vec to use par_iter
     // This brings down the time from 1s -> 0.3s.
     return visited
@@ -124,8 +124,8 @@ fn part2(pi: &mut PuzzleInput) -> i32 {
         .map(|&(x, y)| {
             let mut pi_clone = pi.clone();
             pi_clone.grid[x as usize][y as usize] = '#';
-            let valid = is_loop(&pi_clone);
-            valid
+            
+            is_loop(&pi_clone)
         })
         .filter(|&valid| valid)
         .count() as i32;
@@ -175,7 +175,7 @@ fn _part2_old(pi: &PuzzleInput) -> HashSet<(i32, i32)> {
             }
         }
     }
-    return visited;
+    visited
 }
 
 fn main() {

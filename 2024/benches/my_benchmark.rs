@@ -1,6 +1,6 @@
 use std::fs;
 
-use criterion::{black_box, criterion_group, criterion_main, BenchmarkId, Criterion};
+use criterion::{criterion_group, criterion_main, BenchmarkId, Criterion};
 
 use std::{
     cmp::Ordering,
@@ -15,13 +15,12 @@ struct PuzzleInput {
 
 fn parse(s: &str) -> PuzzleInput {
     let parts: Vec<&str> = s.trim_end().split("\n\n").collect();
-    let rules: Vec<(i32, i32)> = parts
-        .get(0)
+    let rules: Vec<(i32, i32)> = parts.first()
         .unwrap()
         .lines()
         .map(|l| {
             let parsed: Vec<i32> = l.split("|").map(|x| x.parse::<i32>().unwrap()).collect();
-            (*parsed.get(0).unwrap(), *parsed.get(1).unwrap())
+            (*parsed.first().unwrap(), *parsed.get(1).unwrap())
         })
         .collect();
 
@@ -39,11 +38,11 @@ fn parse(s: &str) -> PuzzleInput {
             .or_insert(vec![i.1]);
     }
 
-    return PuzzleInput {
+    PuzzleInput {
         rules,
         rows,
         rules_by_id,
-    };
+    }
 }
 
 fn part1(pi: &PuzzleInput) -> i32 {
@@ -57,7 +56,7 @@ fn part1(pi: &PuzzleInput) -> i32 {
                 .iter()
                 .all(|y| !s.contains(y));
             s.insert(*x);
-            return valid;
+            valid
         }) {
             count + row.get(row.len() / 2).unwrap()
         } else {
@@ -99,7 +98,7 @@ fn part2_alternative(pi: &PuzzleInput) -> i32 {
                     return Ordering::Less;
                 }
             }
-            return Ordering::Equal;
+            Ordering::Equal
         });
         if correct_order != *row {
             // println!("{:?} -> {:?}", &r2, &current_order);
@@ -115,11 +114,11 @@ fn part2_old(pi: &PuzzleInput) -> i32 {
     for r2 in pi.rows.iter() {
         let mut current_order: Vec<i32> = vec![];
         let mut r = r2.clone();
-        while !r.is_empty() {
-            let i = r.pop().unwrap();
+        while let Some(i) = r.pop() {
+            
             if let Some(rule) = pi.rules_by_id.get(&i) {
                 for x in rule {
-                    if current_order.contains(&x) {
+                    if current_order.contains(x) {
                         current_order.retain(|y| *y != *x);
                         r.push(*x);
                     }
@@ -132,7 +131,7 @@ fn part2_old(pi: &PuzzleInput) -> i32 {
             count += current_order.get(current_order.len() / 2).unwrap();
         }
     }
-    return count;
+    count
 }
 
 fn benchmark_day5(c: &mut Criterion) {

@@ -24,7 +24,7 @@ fn part1(pi: &Vec<(i32, i32, i32, i32)>, width: i32, height: i32) -> i32 {
         }
         // println!("{:?} {:?}", k, v);
     }
-    return counts.iter().fold(1, |acc, x| acc * x);
+    return counts.iter().product::<i32>();
 }
 
 fn calculate_dist_sq(points: &Vec<(i32, i32)>) -> i64 {
@@ -34,7 +34,7 @@ fn calculate_dist_sq(points: &Vec<(i32, i32)>) -> i64 {
             dist += ((*px as i64 - *qx as i64).abs() + (*py as i64 - *qy as i64).abs()).pow(2);
         }
     }
-    return dist;
+    dist
 }
 
 fn part2(pi: &Vec<(i32, i32, i32, i32)>, width: i32, height: i32) -> i32 {
@@ -77,7 +77,7 @@ fn part2(pi: &Vec<(i32, i32, i32, i32)>, width: i32, height: i32) -> i32 {
             }
         }
     }
-    return ans;
+    ans
 }
 
 fn _part2_original(pi: &Vec<(i32, i32, i32, i32)>, width: i32, height: i32) -> i32 {
@@ -114,7 +114,7 @@ fn _part2_original(pi: &Vec<(i32, i32, i32, i32)>, width: i32, height: i32) -> i
         // }
         // println!("-----------------{}-----------------", i);
     }
-    return 0;
+    0
 }
 
 fn main() {

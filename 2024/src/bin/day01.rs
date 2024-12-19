@@ -12,7 +12,7 @@ fn parse_into_two_arrays(s: &Vec<Vec<i32>>) -> (Vec<i32>, Vec<i32>) {
         let mut b = acc.1.clone();
         a.push(x[0]);
         b.push(x[1]);
-        return (a, b);
+        (a, b)
     });
     (a, b)
 }
