@@ -17,7 +17,10 @@ fn part1(pi: &Vec<Vec<i32>>) -> i32 {
 
     // BFS
     while let Some(((x, y), (a, b), val)) = stack.pop() {
-        
+        if val == 9 {
+            score.entry((a, b)).or_default().insert((x, y));
+        }
+
         for (dy, dx) in [(-1, 0), (1, 0), (0, -1), (0, 1)] {
             if dx == 0 && dy == 0 {
                 continue;
@@ -28,11 +31,7 @@ fn part1(pi: &Vec<Vec<i32>>) -> i32 {
                 continue;
             }
             if pi[ny as usize][nx as usize] == val + 1 {
-                if val == 8 {
-                    score.entry((a, b)).or_default().insert((x, y));
-                } else {
-                    stack.push(((nx as usize, ny as usize), (a, b), val + 1));
-                }
+                stack.push(((nx as usize, ny as usize), (a, b), val + 1));
             }
         }
     }
@@ -57,7 +56,6 @@ fn part2(pi: &Vec<Vec<i32>>) -> i32 {
     }
 
     while let Some(((x, y), (a, b), val)) = stack.pop() {
-        
         for (dy, dx) in [(-1, 0), (1, 0), (0, -1), (0, 1)] {
             if dx == 0 && dy == 0 {
                 continue;
