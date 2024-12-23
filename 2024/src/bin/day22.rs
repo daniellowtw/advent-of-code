@@ -1,5 +1,8 @@
 use rayon::prelude::*;
-use std::{collections::VecDeque, fs};
+use std::{
+    collections::{HashMap, HashSet, VecDeque},
+    fs,
+};
 
 fn part1(pi: &Vec<i64>) -> i64 {
     pi.iter()
@@ -24,7 +27,10 @@ fn seq(seed: i64) -> [i8; 2001] {
     return res;
 }
 
-fn check(secrets: [i8; 2001], seq: &[i8; 4]) -> i8 {
+fn _check(secrets: [i8; 2001], seq: &[i8; 4]) -> i8 {
+    // Secrets = hash chain mod 10
+    // Seq is the needle we want to find.
+    // This finds the value of the seq in this chain.
     for i in 4..=2000 {
         if secrets[i] - secrets[i - 1] == seq[3]
             && secrets[i - 1] - secrets[i - 2] == seq[2]
@@ -37,7 +43,9 @@ fn check(secrets: [i8; 2001], seq: &[i8; 4]) -> i8 {
     return 0;
 }
 
-fn check_old(seed: i64, seq: &[i64; 4]) -> i64 {
+fn _check_old(seed: i64, seq: &[i64; 4]) -> i64 {
+    // My original implementation without precomputation.
+    // The computation of the chain should be cached!
     let mut seed = seed;
     let mut prev = seed % 10;
     let mut changes = VecDeque::new();
@@ -57,7 +65,42 @@ fn check_old(seed: i64, seq: &[i64; 4]) -> i64 {
     return 0;
 }
 
-fn part2(pi: &Vec<i64>) -> i64 {
+fn seq_to_4diff_map(seq: [i8; 2001]) -> HashMap<[i8; 4], i8> {
+    let mut res = HashMap::new();
+    seq.windows(5).for_each(|x| {
+        let key = [x[1] - x[0], x[2] - x[1], x[3] - x[2], x[4] - x[3]];
+        let value = x[4];
+        if !res.contains_key(&key) {
+            res.insert(key, value);
+        }
+    });
+    res
+}
+
+fn part2(pi: &Vec<i64>) -> i32 {
+    // Optimized from 6m+ to 90s using parallelism to 7s using precomputation and pruning search space to <1s using even more parallelism.
+    // Optimized from the original part 2 solution:
+    // 1. Precompute the diff, don't evaluate on each loop. So for a given seed, precompute the hash chain mod 10, and precompute the diff.
+    // 2. Precompute possible values for the diffs so that checking a solution is O(1) instead of O(N) where N is the length of the hash chain.
+    // 3. Don't iterate over all 19^4 = 130k possibilities. Instead union all possible keys and iterate only those (40k)
+    let pi: Vec<HashMap<[i8; 4], i8>> = pi
+        .par_iter()
+        .map(|&seed| seq_to_4diff_map(seq(seed)))
+        .collect();
+    let candidate_sequences: HashSet<&[i8; 4]> = pi.iter().flat_map(|p| p.keys()).collect();
+
+    candidate_sequences
+        .par_iter()
+        .map(|seq| {
+            pi.par_iter()
+                .map(|seen| *seen.get(*seq).unwrap_or(&0) as i32)
+                .sum::<i32>()
+        })
+        .max()
+        .unwrap()
+}
+
+fn _part2_original(pi: &Vec<i64>) -> i64 {
     let mut max = 0;
     let pi = pi
         .iter()
@@ -82,7 +125,7 @@ fn part2(pi: &Vec<i64>) -> i64 {
                     let candidate = pi
                         .par_iter()
                         .map(|&seed| {
-                            let ans = check(seed, &seq);
+                            let ans = _check(seed, &seq);
                             // println!("{:?} -> {}, {:?}", ans, seed, seq);
                             ans as i64
                         })
@@ -140,13 +183,13 @@ mod tests {
 
     #[test]
     fn test_part2() {
-        assert_eq!(check(seq(123), &[-1, -1, 0, 2]), 6);
+        assert_eq!(_check(seq(123), &[-1, -1, 0, 2]), 6);
     }
     #[test]
     fn test_part2_a() {
-        assert_eq!(check_old(1, &[-2, 1, -1, 3]), 7);
-        assert_eq!(check_old(2, &[-2, 1, -1, 3]), 7);
-        assert_eq!(check_old(3, &[-2, 1, -1, 3]), 0);
-        assert_eq!(check_old(2024, &[-2, 1, -1, 3]), 9);
+        assert_eq!(_check_old(1, &[-2, 1, -1, 3]), 7);
+        assert_eq!(_check_old(2, &[-2, 1, -1, 3]), 7);
+        assert_eq!(_check_old(3, &[-2, 1, -1, 3]), 0);
+        assert_eq!(_check_old(2024, &[-2, 1, -1, 3]), 9);
     }
 }
